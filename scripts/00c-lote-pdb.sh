@@ -14,11 +14,9 @@ for f in "$@"; do
                 echo "Falta: $f"
                 continue
             fi
-            n=$(grep -c '^ATOM' "$f" || true)
+            n=$(grep -c '^ATOM' "$f")
             echo "$f → $n ATOM"
             ;;
-        *)
-            echo "Ignorado (no PDB): $f"
-            ;;
+        *)  echo "Ignorado (no PDB): $f" ;;
     esac
 done

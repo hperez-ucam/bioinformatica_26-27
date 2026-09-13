@@ -2,14 +2,14 @@
 # Ejemplo mediano: comprueba el fichero, cuenta líneas ATOM y avisa si no hay.
 # Uso: ./00b-contar-atom.sh ejemplo.pdb
 
-fichero=${1:-ejemplo.pdb}
+fichero=${1:-ejemplo.pdb}    # sin argumento, usa ejemplo.pdb
 
 if [ ! -f "$fichero" ]; then
     echo "No existe $fichero"
     exit 1
 fi
 
-n=$(grep -c '^ATOM' "$fichero" || true)
+n=$(grep -c '^ATOM' "$fichero")
 echo "ATOM en $fichero: $n"
 
 if [ "$n" -eq 0 ]; then
