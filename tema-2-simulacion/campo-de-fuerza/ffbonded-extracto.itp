@@ -1,0 +1,8 @@
+[ bondtypes ]
+; i    j  func       b0          kb
+  OW HW         1    0.09572   462750.4 ; P water
+  C  O          1    0.12290   476976.0 ; 7,(1986),230; AA,CYT,GUA,THY,URA
+  CA CA         1    0.14000   392459.2 ; 7,(1986),230; BENZENE,PHE,TRP,TYR
+  CT CT         1    0.15260   259408.0 ; 7,(1986),230; AA, SUGARS
+  CT HC         1    0.10900   284512.0 ; ged from 331 bsd on NMA nmodes; AA, SUGARS
+  CT OH         1    0.14100   267776.0 ; 7,(1986),230; SUGARS
