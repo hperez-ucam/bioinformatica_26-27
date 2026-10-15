@@ -48,8 +48,11 @@ RT = 8.314e-3 * 300             # kJ/mol a 300 K
 
 def energia(phi):
     """Energia del diedro, en kJ/mol. Vale cero en la conformacion anti."""
+    # el potencial esta escrito respecto a la conformacion anti, que es phi=180
     psi = phi - np.pi
+    # se calcula el coseno una sola vez: aparece elevado de 0 a 5
     c = np.cos(psi)
+    # suma de los seis terminos C_n * cos^n(psi)
     return sum(C[n] * c ** n for n in range(6))
 
 
@@ -65,6 +68,7 @@ def distancia_14(phi):
     minima en la eclipsada sin (phi = 0). No entra en la energia; se calcula
     para ver que lo que encarece la eclipsada es el acercamiento de los metilos.
     """
+    # toda la dependencia con el diedro esta en el termino (1 - cos phi)
     return B * np.sqrt((1 - 2 * np.cos(THETA)) ** 2
                        + 2 * np.sin(THETA) ** 2 * (1 - np.cos(phi)))
 
@@ -87,6 +91,8 @@ def gradiente(phi, h=1e-5):
     diferencias para que se vea que la fuerza no es mas que la pendiente
     cambiada de signo.
     """
+    # diferencia centrada: se mide la energia un poco a cada lado y se divide
+    # por la distancia entre los dos puntos
     return (energia(phi + h) - energia(phi - h)) / (2 * h)
 
 
@@ -100,9 +106,12 @@ def minimizar(phi0, paso=0.01, tol=1e-4, max_iter=20000):
     """
     phi = float(phi0)
     for n in range(1, max_iter + 1):
+        # la pendiente en el punto actual
         g = gradiente(phi)
+        # criterio de parada: la fuerza ya es despreciable
         if abs(g) < tol:
             return phi, energia(phi), n
+        # se avanza en sentido contrario a la pendiente, que es bajar
         phi -= paso * g
     return phi, energia(phi), max_iter
 
@@ -156,7 +165,9 @@ def main():
               f"{distancia_14(np.radians(g)):.3f} nm")
 
     print("\nPOBLACION A 300 K (Boltzmann sobre los tres minimos)")
+    # peso de Boltzmann de cada minimo: exp(-E/RT)
     pesos = np.exp(-np.array([e for _, e in mins]) / RT)
+    # se normalizan para que sumen 1 y se lean como porcentajes
     pesos /= pesos.sum()
     for (g, _), p in zip(mins, pesos):
         print(f"  {nombre_conformero(g):<8} {g:6.1f}°   {100 * p:5.1f} %")
