@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
-"""Minimizacion de energia de un confórmero: el butano.
+"""Minimización de energía de un confórmero: el butano.
 
-El caso mas simple de los que vemos en el Tema 2. La molecula tiene un unico
-grado de libertad interesante, el diedro C1-C2-C3-C4, asi que su superficie de
-energia potencial es una curva que cabe en una pantalla. Todo lo que se dice en
-clase sobre minimizar se puede comprobar aqui en diez segundos.
+El caso más simple de los que vemos en el Tema 2. La molécula tiene un único
+grado de libertad interesante, el diedro C1-C2-C3-C4, así que su superficie de
+energía potencial es una curva que cabe en una pantalla. Todo lo que se dice en
+clase sobre minimizar se puede comprobar aquí en diez segundos.
 
 MODELO DE ENERGIA
 -----------------
-Potencial de Ryckaert-Bellemans para el butano de atomo unido, que es el que
-lleva GROMACS en su ejemplo clasico:
+Potencial de Ryckaert-Bellemans para el butano de átomo unido, que es el que
+lleva GROMACS en su ejemplo clásico:
 
     V(psi) = sum_{n=0..5} C_n cos^n(psi),   psi = phi - 180 grados
 
 con los seis coeficientes en kJ/mol. Es un potencial *autocontenido*: ya
 incluye el efecto de las interacciones entre los metilos terminales, de modo
-que no hay que sumarle ningun termino de van der Waals aparte. Por eso el
-diedro basta para describir la molecula.
+que no hay que sumarle ningún termino de van der Waals aparte. Por eso el
+diedro basta para describir la molécula.
 
-Lo que el modelo reproduce bien: los tres minimos, cual es el global, y que las
+Lo que el modelo reproduce bien: los tres mínimos, cuál es el global, y que las
 barreras son mucho mayores que RT. Lo que no reproduce bien: la barrera de la
-conformacion eclipsada sin sale en 44,8 kJ/mol frente a los 19-27 kJ/mol que
-dan los experimentos. Un campo de fuerza es una aproximacion ajustada, y
+conformación eclipsada (sin-periplanar, 0°) sale en 44,8 kJ/mol frente a los 19-27 kJ/mol que
+dan los experimentos. Un campo de fuerza es una aproximación ajustada, y
 conviene saber de que tamano es su error.
 
 Referencia: Ryckaert, J.-P., & Bellemans, A. (1975). Molecular dynamics of
@@ -30,20 +30,23 @@ liquid n-butane near its boiling point. Chemical Physics Letters, 30(1),
 
 Uso:
     python3 butano.py                 # barrido + minimizaciones + figura
-    python3 butano.py --sin-figura    # solo los numeros, sin matplotlib
+    python3 butano.py --sin-figura    # solo los números, sin matplotlib
 """
 
 import argparse
 import numpy as np
 
-# --- parametros del modelo ---------------------------------------------------
+# --- parámetros del modelo ---------------------------------------------------
 
 # Ryckaert-Bellemans para el butano, kJ/mol
 C = np.array([9.2789, 12.1557, -13.1200, -3.0597, 26.2403, -31.4950])
 
-B = 0.153                       # nm, enlace C-C
-THETA = np.radians(112.7)       # angulo C-C-C
-RT = 8.314e-3 * 300             # kJ/mol a 300 K
+# longitud del enlace C-C, en nm
+B = 0.153
+# ángulo C-C-C
+THETA = np.radians(112.7)
+# referencia térmica a 300 K, en kJ/mol
+RT = 8.314e-3 * 300
 
 
 def energia(phi):
@@ -63,9 +66,9 @@ def distancia_14(phi):
 
         r14^2 = b^2 [ (1 - 2 cos t)^2 + 2 sin^2(t) (1 - cos phi) ]
 
-    con b la longitud de enlace y t el angulo C-C-C. Toda la dependencia del
+    con b la longitud de enlace y t el ángulo C-C-C. Toda la dependencia del
     diedro esta en (1 - cos phi): separacion maxima en anti (phi = 180) y
-    minima en la eclipsada sin (phi = 0). No entra en la energia; se calcula
+    minima en la eclipsada sin (phi = 0). No entra en la energía; se calcula
     para ver que lo que encarece la eclipsada es el acercamiento de los metilos.
     """
     # toda la dependencia con el diedro esta en el termino (1 - cos phi)
@@ -87,19 +90,19 @@ def posiciones(phi):
 def gradiente(phi, h=1e-5):
     """Derivada dE/dphi por diferencias finitas centradas.
 
-    Un programa real deriva la energia analiticamente; aqui se hace por
-    diferencias para que se vea que la fuerza no es mas que la pendiente
+    Un programa real deriva la energía analiticamente; aquí se hace por
+    diferencias para que se vea que la fuerza no es más que la pendiente
     cambiada de signo.
     """
-    # diferencia centrada: se mide la energia un poco a cada lado y se divide
+    # diferencia centrada: se mide la energía un poco a cada lado y se divide
     # por la distancia entre los dos puntos
     return (energia(phi + h) - energia(phi - h)) / (2 * h)
 
 
 def minimizar(phi0, paso=0.01, tol=1e-4, max_iter=20000):
-    """Descenso por gradiente desde phi0. Devuelve (phi, energia, pasos).
+    """Descenso por gradiente desde phi0. Devuelve (phi, energía, pasos).
 
-    En cada iteracion el diedro se mueve en sentido contrario a la pendiente.
+    En cada iteración el diedro se mueve en sentido contrario a la pendiente.
     El criterio de parada es que la fuerza baje de un umbral, igual que en
     GROMACS se para cuando Fmax < emtol. El algoritmo no salta barreras: por eso
     el resultado depende del punto de partida.
@@ -122,10 +125,10 @@ def grados(phi):
 
 
 def extremos(n=36000):
-    """Minimos y maximos del barrido, comparando cada punto con sus vecinos.
+    """Minimos y máximos del barrido, comparando cada punto con sus vecinos.
 
-    El barrido es circular: el punto 0 grados y el 360 son el mismo, asi que la
-    comparacion se hace con indices modulo n. Si no, la eclipsada sin (0 grados)
+    El barrido es circular: el punto 0 grados y el 360 son el mismo, así que la
+    comparación se hace con indices modulo n. Si no, la eclipsada sin (0 grados)
     se perderia por caer justo en el borde.
     """
     phi = np.linspace(0, 2 * np.pi, n, endpoint=False)
@@ -155,17 +158,17 @@ def main():
 
     mins, maxs = extremos()
 
-    print("BARRIDO DEL DIEDRO C1-C2-C3-C4")
+    print("BARRIDO DEL DIEDRO C1–C2–C3–C4")
     print(f"{'':<9}{'diedro':>9} {'E (kJ/mol)':>12} {'E/RT':>7}   r(C1...C4)")
     for g, e in mins:
-        print(f"{'minimo':<9}{g:>8.1f}° {e:>12.2f} {e / RT:>7.2f}   "
+        print(f"{'mínimo':<9}{g:>8.1f}° {e:>12.2f} {e / RT:>7.2f}   "
               f"{distancia_14(np.radians(g)):.3f} nm   {nombre_conformero(g)}")
     for g, e in maxs:
-        print(f"{'maximo':<9}{g:>8.1f}° {e:>12.2f} {e / RT:>7.2f}   "
+        print(f"{'máximo':<9}{g:>8.1f}° {e:>12.2f} {e / RT:>7.2f}   "
               f"{distancia_14(np.radians(g)):.3f} nm")
 
-    print("\nPOBLACION A 300 K (Boltzmann sobre los tres minimos)")
-    # peso de Boltzmann de cada minimo: exp(-E/RT)
+    print("\nPOBLACION A 300 K (Boltzmann sobre los tres mínimos)")
+    # peso de Boltzmann de cada mínimo: exp(-E/RT)
     pesos = np.exp(-np.array([e for _, e in mins]) / RT)
     # se normalizan para que sumen 1 y se lean como porcentajes
     pesos /= pesos.sum()
@@ -174,35 +177,39 @@ def main():
     anti = sum(p for (g, _), p in zip(mins, pesos) if nombre_conformero(g) == "anti")
     print(f"  -> anti {100 * anti:.0f} %, gauche {100 * (1 - anti):.0f} %")
 
-    print("\nMINIMIZACION DESDE DISTINTOS PUNTOS DE PARTIDA")
+    print("\nMINIMIZACIÓN DESDE DISTINTOS PUNTOS DE PARTIDA")
     print(f"{'inicial':>8} {'final':>9} {'E final':>9} {'pasos':>7}   llega a")
+    # 115 y 125 grados están a cada lado de la barrera de 120: el par que hay que mirar
     for g0 in (10, 70, 115, 125, 175, 200, 245, 255, 300, 350):
         phi_f, e_f, n = minimizar(np.radians(g0))
         gf = grados(phi_f)
         print(f"{g0:>7}° {gf:>8.1f}° {e_f:>9.2f} {n:>7}   "
               f"{nombre_conformero(gf)}{' (global)' if nombre_conformero(gf) == 'anti' else ' (local)'}")
 
-    print("\nLo que hay que leer en esta tabla: 115 y 125 grados estan separados")
-    print("por 10 grados y acaban en minimos distintos, porque entre ellos pasa")
-    print("la barrera de 120 grados. El algoritmo no elige el mejor minimo: se")
+    print("\nLo que hay que leer en esta tabla: 115 y 125 grados están separados")
+    print("por 10 grados y acaban en mínimos distintos, porque entre ellos pasa")
+    print("la barrera de 120 grados. El algoritmo no elige el mejor mínimo: se")
     print("queda en el que tiene debajo.")
 
     if args.sin_figura:
         return
 
     import matplotlib
+    # "Agg" dibuja a fichero sin abrir ninguna ventana: vale en un servidor sin pantalla
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    # 1441 puntos entre 0 y 360 grados: uno cada cuarto de grado
     g = np.linspace(0, 360, 1441)
     fig, ax = plt.subplots(figsize=(8, 4.2), dpi=150)
     ax.plot(g, energia(np.radians(g)), lw=2, color="#004379")
     for gm, em in mins:
         ax.plot(gm, em, "o", color="#9A7200", zorder=5)
+    # línea horizontal en RT, para comparar barreras con la energía térmica
     ax.axhline(RT, color="#C7CDD2", lw=1)
     ax.text(6, RT + 1.2, "RT a 300 K", fontsize=9, color="#565656")
     ax.set_xlabel("diedro C1-C2-C3-C4 (grados)")
-    ax.set_ylabel("energia (kJ/mol)")
+    ax.set_ylabel("energía (kJ/mol)")
     ax.set_xlim(0, 360)
     ax.set_xticks(range(0, 361, 60))
     for lado in ("top", "right"):
