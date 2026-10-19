@@ -5,7 +5,7 @@ El butano tiene un grado de libertad y tres mínimos. Un farmaco tiene varios
 enlaces que giran, y el número de mínimos crece tan deprisa que ya no se puede
 dibujar la superficie: solo se puede muestrear.
 
-La idea del guion es sencilla: generar muchos puntos de partida al azar,
+La idea del script es sencilla: generar muchos puntos de partida al azar,
 minimizar cada uno, y ver cuantas energías distintas salen. Si una sola
 minimización bastara, todas darian lo mismo.
 

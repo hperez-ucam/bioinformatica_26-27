@@ -3,21 +3,22 @@
 # el sistema más pequeno que tiene sentido simular: el dipeptido de alanina.
 #
 # 22 átomos de soluto y unas 650 moléculas de agua. Son unos 2 000 átomos en
-# total, así que corre en CPU en un ordenador normal: la producción de 1 ns
-# tarda del orden de media hora. No hace falta GPU ni cola de trabajos.
+# total, así que corre en CPU: en el servidor de la asignatura (12 núcleos,
+# GROMACS 2023.3) el script completo tarda unos 4 minutos y la producción de
+# 1 ns, unos 235 s (19/10/2026). No hace falta GPU ni cola de trabajos.
 #
 # Es el mismo flujo de siete etapas de la figura del 2.4, ejecutado paso a paso;
 # las cabeceras van numeradas como las cajas de esa figura.
 #
 #   ./md-dipeptido.sh
 #
-# Se ejecuta desde la carpeta dinámica/, donde están minim.mdp y md.mdp; el
-# PDB de partida lo escribe ../minimización/dipeptido.py, que debe estar al lado.
+# Se ejecuta desde el directorio dinamica/, donde están minim.mdp y md.mdp; el
+# PDB de partida lo escribe ../minimizacion/dipeptido.py, que debe estar al lado.
 #
 set -euo pipefail
 
 # -- 0. comprobar que GROMACS esta disponible --------------------------------
-# si no esta, el guion para aquí en vez de fallar a mitad
+# si no esta, el script para aquí en vez de fallar a mitad
 command -v gmx >/dev/null || { echo "No encuentro gmx. En el servidor de la asignatura deberia estar instalado: avisa al profesor."; exit 1; }
 
 # -- 1. la molécula ----------------------------------------------------------
@@ -99,7 +100,7 @@ gmx mdrun -v -deffnm npt
 # -- 6. producción -----------------------------------------------------------
 # 100 ps son 50 000 pasos de 2 fs, a T y P constantes como en el md.mdp de
 # clase; es lo único que se analiza despues.
-# El md.mdp de esta carpeta es el de una producción de 10 ns, para leerlo en
+# El md.mdp de este directorio es el de una producción de 10 ns, para leerlo en
 # clase; aquí se escribe uno más corto con otro nombre para no pisarlo
 cat > md-dipeptido.mdp <<'MDP'
 integrator  = md
