@@ -18,7 +18,12 @@ mol = Chem.AddHs(Chem.MolFromSmiles(smiles))
 AllChem.EmbedMultipleConfs(mol, 10, randomSeed=2026)
 # MMFF94 minimiza cada una: (convergencia, kcal/mol)
 res = AllChem.MMFFOptimizeMoleculeConfs(mol)
-# energías relativas a la mejor, en kJ/mol
-E = [e * 4.184 for _, e in res]
-for e in sorted(E):
-    print(f"{e - min(E):5.1f} kJ/mol")
+# energías en kJ/mol, ordenadas y relativas a la mejor
+E = sorted(e * 4.184 for _, e in res)
+dE = [e - E[0] for e in E]
+print("kJ/mol sobre la mejor:")
+# se imprimen de cinco en cinco
+for i in range(0, len(dE), 5):
+    print(" ".join(f"{x:4.1f}" for x in dE[i:i + 5]))
+# energías distintas, con una tolerancia de 0,5 kJ/mol
+print("distintas:", len({round(x * 2) for x in dE}), "de", len(dE))
