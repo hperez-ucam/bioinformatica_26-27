@@ -18,7 +18,6 @@ from vina import Vina
 
 # semilla y exhaustividad, desde la línea de órdenes
 semilla, exh = int(sys.argv[1]), int(sys.argv[2])
-# función de puntuación empírica de Vina
 v = Vina(sf_name="vina", seed=semilla, verbosity=0)
 # receptor y ligando preparados, en formato PDBQT
 v.set_receptor("sistema/1HVR_rec.pdbqt")
@@ -31,7 +30,6 @@ v.dock(exhaustiveness=exh, n_poses=5)
 # afinidad (kcal/mol) de las cinco mejores poses
 for i, e in enumerate(v.energies()[:, 0], 1):
     print(f"pose {i}: {e:6.2f} kcal/mol")
-# las poses se guardan en salidas/ (se crea si no existe)
 Path("salidas").mkdir(exist_ok=True)
 salida = f"salidas/poses_s{semilla}_e{exh}.pdbqt"
 v.write_poses(salida, n_poses=5, overwrite=True)
